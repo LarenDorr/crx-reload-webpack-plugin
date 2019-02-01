@@ -1,0 +1,26 @@
+{
+	"compilerOptions":{
+		"module": "commonjs",
+		"removeComments": true,
+		"moduleResolution": "node",
+		"target": "es6",
+		"allowJs": true ,
+		"types": [
+      "node",
+      "chrome",
+			"webpack"
+    ]
+	},
+	"include": [
+		"src/**/*"
+	],
+	"presets": [
+    "env",
+    {
+      "modules": false
+    }
+  ],
+	"exclude": [
+    "node_modules"
+  ]
+}
