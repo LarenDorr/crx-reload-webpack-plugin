@@ -5,6 +5,9 @@
 		"moduleResolution": "node",
 		"target": "es6",
 		"allowJs": true ,
+		"typeRoots": [
+      "typings/index.d.ts"
+    ],
 		"types": [
       "node",
       "chrome",
@@ -14,6 +17,9 @@
 	"include": [
 		"src/**/*"
 	],
+	"files": [
+    "typings/index.d.ts"
+  ],
 	"presets": [
     "env",
     {

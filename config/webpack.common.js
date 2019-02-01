@@ -7,6 +7,7 @@ function resolve(dir) {
 module.exports = {
 	context: resolve('src'),
 	entry: './index.ts',
+	devtool: "source-map",
 	output: {
 		filename: 'crxReloadPlugin.js',
 		path: resolve('dist'),

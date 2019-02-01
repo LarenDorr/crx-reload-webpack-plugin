@@ -2,6 +2,7 @@ const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CrxReloadWebpackPlugin = require('../dist/crxReloadPlugin')
+
 function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
@@ -46,6 +47,8 @@ module.exports = {
 				to: resolve('dist/images')
 			}
 		]),
-		new CrxReloadWebpackPlugin()
+		new CrxReloadWebpackPlugin({
+      manifest: resolve('template/manifest.js')
+    })
 	]
 }
