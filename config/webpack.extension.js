@@ -34,7 +34,6 @@ module.exports = {
       template: 'popup/popup.html',
       inject: false
     }),
-
     new HtmlWebpackPlugin({
       filename: resolve('dist/options/options.html'),
       chunks: ['options'],

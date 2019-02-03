@@ -8,6 +8,7 @@ module.exports = {
 	context: resolve('src'),
 	entry: './index.ts',
 	devtool: "source-map",
+	target: 'node',
 	output: {
 		filename: 'crxReloadPlugin.js',
 		path: resolve('dist'),
@@ -24,6 +25,7 @@ module.exports = {
 		]
 	},
 	resolve: {
+		modules: [path.resolve(__dirname, "src"), "node_modules"],
 		extensions: ['.ts','.tsx','.js','.json']
 	}
 }
