@@ -1,5 +1,5 @@
-{
-	"name": "Test",
+module.exports = {
+	name: "Test",
 	"version": "1.0.0",
 	"description": "This is a test extension.",
 	"manifest_version": 2,
