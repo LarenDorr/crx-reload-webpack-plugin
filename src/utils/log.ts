@@ -17,7 +17,7 @@ export default class Log{
 		this.outFunc = outFunc || console.log
 		this.logData = []
 	}
-	info(text: string){
+	info(text: any){
 		text = `INFO: ${text}`
 		this.saveLog(text)
 		this.stdout('info', text)
@@ -29,7 +29,7 @@ export default class Log{
 		// this.stdout('error', text)
 		throw error
 	}
-	warn(text: string){
+	warn(text: any){
 		text = `WARN: ${text}`
 		this.saveLog(text)
 		this.stdout('warn', text)

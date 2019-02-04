@@ -9,11 +9,15 @@ export default class Server {
 		this.port = 9999
 	}
 	launch() {
-		this.server = new WebSocket.Server({
-			port: this.port
-		}, () => {
-			logger.info(`WebSocket was launched on port ${this.port}`)
-		})
+		try {
+			this.server = new WebSocket.Server({
+				port: this.port
+			}, () => {
+				logger.info(`WebSocket was launched on port ${this.port}`)
+			})
+		} catch (error) {
+			logger.error(error)
+		}
 		this.server.on('error', (e) => {
 			logger.error(e)
 		})
@@ -37,16 +41,10 @@ export default class Server {
 	handleClientRequest(data: WebSocket.Data) {
 		logger.info(data.toString())
 	}
-	send(data: WebSocket.Data){
-		logger.info(`server was send ${data}`)
-		this.client.send(data)
-	}
-	judgeDiff(){
-		/* judge the diff files, then send to chrome client to reload, have 3 situation
-		1. manifest.js file was changed, need reload the extension
-		2. options.html file was changed, need reload the options tab
-		3. content script file was changed, may be need reload all tab
-		*/
-		// TODO
+	send(data: any){
+		if (this.client) {
+			this.client.send(data)
+			logger.info(`server was send ${data}`)
+		}
 	}
 }
