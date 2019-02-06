@@ -9,7 +9,7 @@
       "typings/index.d.ts"
     ],
 		"types": ["node", "chrome", "webpack", "ws", "lodash"],
-		"lib": ["es2017"]
+		"lib": ["es2017", "dom"]
 	},
 	
 	"include": [

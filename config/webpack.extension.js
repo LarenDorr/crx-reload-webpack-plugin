@@ -28,6 +28,9 @@ module.exports = {
 	},
 	mode: 'development',
 	plugins: [
+    new CrxReloadWebpackPlugin({
+      manifest: resolve('template/manifest.js')
+    }),
 		new HtmlWebpackPlugin({
       filename: resolve('dist/popup/popup.html'),
       chunks: ['popup'],
@@ -44,10 +47,11 @@ module.exports = {
 			{
 				from: 'images',
 				to: resolve('dist/images')
-			}
-		]),
-		new CrxReloadWebpackPlugin({
-      manifest: resolve('template/manifest.js')
-    })
+			},
+      {
+        from: 'content/content.css',
+        to: resolve('dist/content')
+      }
+		])
 	]
 }
