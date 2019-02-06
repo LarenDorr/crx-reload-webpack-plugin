@@ -6,7 +6,7 @@ import AbstractPlugin from "./abstractPlugin"
 import logger from './logger'
 import Server from './server'
 import requireFromPath from './requireFromPath'
-import  * as clientCode from 'raw-loader!./client.ts'
+import  * as templateCode from './template'
 import { pathsInPaths } from './utils/pathComp'
 import CONSTANT from './constant'
 
@@ -36,20 +36,58 @@ export = class ReloadPlugin extends AbstractPlugin{
 		this.paths.content = this.paths.content || [path.resolve(context, 'content/')]
 	}
 	injectCode(compilation: compilation.Compilation, chunks: compilation.Chunk[]){
-		let background = this.manifest.background.scripts
-		let injectChunk: compilation.Chunk
-		chunks.forEach(chunk => {
-			if (chunk.files.includes(background[0])) {
-				injectChunk = chunk
-				logger.info(`inject in ${chunk.name} chunk`)
-			}
-		})
-		if (injectChunk) {
-			let client = template(clientCode)({
-				arg: 'lalala'
-			})
-			compilation.assets[background[0]] = new ConcatSource(client, compilation.assets[background[0]])
+		let complier = compilation.compiler
+		let isInjected = {
+			background: false,
+			options: false,
+			popup: false
 		}
+		// let background = this.manifest.background.scripts
+		// let injectChunk: compilation.Chunk
+		chunks.forEach(chunk => {
+			let files = chunk.files
+			files.forEach( file => {
+				// @ts-ignore: Unreachable code error
+				let filePath = path.resolve(complier.context, file)
+				if (path.extname(file) === '.js') {
+					let temp: string // need inject code string
+					switch (true) {
+						case pathsInPaths(filePath, this.paths.background): // background js file
+							if (!isInjected.background) {
+								temp = template(templateCode.background)({})
+								isInjected.background = true
+							}
+							break;
+						case pathsInPaths(filePath, this.paths.options): // options js file
+							if (!isInjected.options) {
+								temp = template(templateCode.options)({})
+								isInjected.options = true
+							}
+							break;
+						case pathsInPaths(filePath, this.paths.popup): // background js file
+							if (!isInjected.popup) {
+								temp = template(templateCode.popup)({})
+								isInjected.popup = true
+							}
+							break;
+						default:
+							break;
+					}
+					if (temp) {
+						compilation.assets[file] = new ConcatSource(temp, compilation.assets[file])
+						logger.info(`inject in ${chunk.name} chunk.`)
+					}
+				}
+			})
+			// if (chunk.files.includes(background[0])) {
+			// 	injectChunk = chunk
+			// 	logger.info(`inject in ${chunk.name} chunk`)
+			// }
+		})
+		// if (injectChunk) {
+		// 	let client = template(templateCode.background)({})
+		// 	compilation.assets[background[0]] = new ConcatSource(client, compilation.assets[background[0]])
+		// }
 		
 	}
 	generateMainifest(compilation: compilation.Compilation){
@@ -72,19 +110,24 @@ export = class ReloadPlugin extends AbstractPlugin{
 		*/
 		let diff = this.judgeDiff(changed)
 		logger.info(`file change result: ${diff}`)
-		this.server.send(diff)
+		diff.forEach(code => {
+			this.server.send(code)
+		})
 	}
 	judgeDiff(changed: Array<string>): Array<string>{
 		if (changed.length === 0) {
 			return []
 		}
-		// TODO split path to judge reload scope
 		let changedFile = changed
 		let inBackgroundPaths = pathsInPaths(changedFile, this.paths.background) // 2
 		let inPopupPaths = pathsInPaths(changedFile, this.paths.popup) // 3
 		let inContentPaths = pathsInPaths(changedFile, this.paths.content) // 4
 		let inOptionsPaths = pathsInPaths(changedFile, this.paths.options) //5
 		let res: Array<string> = []
+		// TODO reload extension
+		if (changedFile[0] === this.manifestPath) {
+			res.push(CONSTANT.DIFF_CODE[1])
+		}
 		if (inBackgroundPaths) {
 			res.push(CONSTANT.DIFF_CODE[2])
 		}
@@ -115,7 +158,6 @@ export = class ReloadPlugin extends AbstractPlugin{
 		})
 		complier.hooks.afterEmit.tap(pluginTapName, compilation => {
 			this.noticeClient(compilation)
-			compilation
 		})
 	}
 }

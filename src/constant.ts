@@ -6,5 +6,6 @@ export default {
 		3: 'POPUP_CHANGE',
 		4: 'CONTENT_CHANGE',
 		5: 'OPTIONS_CHANGE'
-	}
+	},
+	CLOSE: 'CLOSE'
 }
