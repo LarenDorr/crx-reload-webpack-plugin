@@ -2,15 +2,18 @@ import Log from './utils/log'
 
 class SingleLog extends Log{
 	private static instance = new SingleLog()
+	private static level: string
 	private constructor(){
-		let args: LogArgs = {
-			logLevel: 'info',
+		super({
+			logLevel: 'error',
 			throwError: true
-		}
-		super(args)
+		})
 	}
 	static getLog(): SingleLog{
 		return SingleLog.instance
+	}
+	static setLevel(level: string){
+		this.level = level
 	}
 }
 export default SingleLog.getLog()

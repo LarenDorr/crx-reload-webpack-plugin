@@ -42,4 +42,7 @@ export default class Log{
 	saveLog(log: string){
 		this.logData.push(log)
 	}
+	setLevel(level: string){
+		this.level = level
+	}
 }

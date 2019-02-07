@@ -55,5 +55,7 @@ export default class Server {
 			logger.info(`server was send ${data}`)
 		}
 	}
-
+	close(cb){
+		this.server.close(cb)
+	}
 }

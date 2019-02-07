@@ -7,7 +7,7 @@ export default function requireFromPath(filePath: string): Manifest{
 		obj = nativeRequire(filePath)
 		logger.info(`required ${filePath}.`)
 		delete nativeRequire.cache[filePath]
-		logger.info(`deleted require(${filePath}) cache`)
+		logger.info(`deleted required manifest cache`)
 	} catch (error) {
 		logger.error(error)
 	}

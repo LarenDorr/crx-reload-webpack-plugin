@@ -1,52 +1,102 @@
-import { ConcatSource } from 'webpack-sources'
-import { Compiler, compilation } from 'webpack'
-import { template } from 'lodash'
+import {
+	ConcatSource
+} from 'webpack-sources'
+import {
+	Compiler,
+	compilation
+} from 'webpack'
+import {
+	template
+} from 'lodash'
 import * as path from 'path'
 import AbstractPlugin from "./abstractPlugin"
 import logger from './logger'
 import Server from './server'
 import requireFromPath from './requireFromPath'
-import  * as templateCode from './template'
-import { pathsInPaths } from './utils/pathComp'
+import * as templateCode from './template'
+import {
+	pathsInPaths
+} from './utils/pathComp'
 import CONSTANT from './constant'
-
+// TODO TEST
 const pluginTapName = 'crx-Reload'
-export = class ReloadPlugin extends AbstractPlugin{
+export = class ReloadPlugin extends AbstractPlugin {
 	private manifest: Manifest
 	private manifestPath: string
 	private port: number
 	private paths: ListenPaths
 	private server: Server
-	constructor({manifest, port, paths}: Options){
+	constructor({
+		manifest,
+		port,
+		paths,
+		logLevel
+	}: Options) {
 		super()
 		this.manifestPath = manifest
 		this.paths = paths || {}
 		this.port = port || 9999
 		this.server = new Server()
 		this.server.launch()
+		logger.setLevel(logLevel || 'error')
 	}
-	getManifest(){
+	apply(complier: Compiler) {
+		// @ts-ignore: Unreachable code error
+		this.checkPath(complier.context)
+		this.getManifest()
+		let mode = complier.options.mode
+		if (mode === 'development') {
+			complier.hooks.watchRun.tap(pluginTapName, complier => {
+				// @ts-ignore: Unreachable code error
+				let changedFile = Object.keys(complier.watchFileSystem.watcher.mtimes)
+				if (changedFile.includes(this.manifestPath)) {
+					this.getManifest()
+				}
+			})
+			complier.hooks.compilation.tap(pluginTapName, compilation => {
+				compilation.hooks.afterOptimizeChunkAssets.tap(pluginTapName, chunks => {
+					this.injectCode(compilation, chunks)
+				})
+			})
+			complier.hooks.afterEmit.tap(pluginTapName, compilation => {
+				this.noticeClient(compilation)
+			})
+		}
+		complier.hooks.emit.tap(pluginTapName, compilation => {
+			this.generateMainifest(compilation)
+		})
+		complier.hooks.watchClose.tap(pluginTapName, () => {
+			this.server.close(() => {
+				logger.info(`server ${this.port} was closed.`)
+			})
+		})
+	}
+	getManifest() {
 		this.manifest = requireFromPath(this.manifestPath)
 		logger.info(`get manifest.js content`)
 	}
-	checkPath(context: string){
+	checkPath(context: string) {
 		this.paths.background = this.paths.background || [path.resolve(context, 'background/')]
 		this.paths.options = this.paths.options || [path.resolve(context, 'options/')]
 		this.paths.popup = this.paths.popup || [path.resolve(context, 'popup/')]
 		this.paths.content = this.paths.content || [path.resolve(context, 'content/')]
+		logger.info(`listen paths: ↓`)
+		for (const path in this.paths) {
+			if (this.paths.hasOwnProperty(path)) {
+				logger.info(`${path}: ${this.paths[path]}`)
+			}
+		}
 	}
-	injectCode(compilation: compilation.Compilation, chunks: compilation.Chunk[]){
+	injectCode(compilation: compilation.Compilation, chunks: compilation.Chunk[]) {
 		let complier = compilation.compiler
 		let isInjected = {
 			background: false,
 			options: false,
 			popup: false
 		}
-		// let background = this.manifest.background.scripts
-		// let injectChunk: compilation.Chunk
 		chunks.forEach(chunk => {
 			let files = chunk.files
-			files.forEach( file => {
+			files.forEach(file => {
 				// @ts-ignore: Unreachable code error
 				let filePath = path.resolve(complier.context, file)
 				if (path.extname(file) === '.js') {
@@ -75,30 +125,22 @@ export = class ReloadPlugin extends AbstractPlugin{
 					}
 					if (temp) {
 						compilation.assets[file] = new ConcatSource(temp, compilation.assets[file])
-						logger.info(`inject in ${chunk.name} chunk.`)
+						logger.info(`inject ${chunk.name} chunk in ${file} file.`)
 					}
 				}
 			})
-			// if (chunk.files.includes(background[0])) {
-			// 	injectChunk = chunk
-			// 	logger.info(`inject in ${chunk.name} chunk`)
-			// }
 		})
-		// if (injectChunk) {
-		// 	let client = template(templateCode.background)({})
-		// 	compilation.assets[background[0]] = new ConcatSource(client, compilation.assets[background[0]])
-		// }
-		
 	}
-	generateMainifest(compilation: compilation.Compilation){
+	generateMainifest(compilation: compilation.Compilation) {
 		compilation.fileDependencies.add(this.manifestPath)
 		let manifestJSON = JSON.stringify(this.manifest)
 		compilation.assets['manifest.json'] = {
 			source: () => manifestJSON,
 			size: () => manifestJSON.length
 		}
+		logger.info(`generate manifest.json`)
 	}
-	noticeClient(compilation: compilation.Compilation){
+	noticeClient(compilation: compilation.Compilation) {
 		let complier = compilation.compiler
 		// @ts-ignore: Unreachable code error // fix @types/webpack watchFileSystem undeclare error
 		let changed = Object.keys(complier.watchFileSystem.watcher.mtimes)
@@ -109,12 +151,12 @@ export = class ReloadPlugin extends AbstractPlugin{
 		4. background.js file was changed, need reload background.html
 		*/
 		let diff = this.judgeDiff(changed)
-		logger.info(`file change result: ${diff}`)
+		logger.info(`file change result: ${diff.length ? diff : 'none'}`)
 		diff.forEach(code => {
 			this.server.send(code)
 		})
 	}
-	judgeDiff(changed: Array<string>): Array<string>{
+	judgeDiff(changed: Array < string > ): Array < string > {
 		if (changed.length === 0) {
 			return []
 		}
@@ -123,8 +165,7 @@ export = class ReloadPlugin extends AbstractPlugin{
 		let inPopupPaths = pathsInPaths(changedFile, this.paths.popup) // 3
 		let inContentPaths = pathsInPaths(changedFile, this.paths.content) // 4
 		let inOptionsPaths = pathsInPaths(changedFile, this.paths.options) //5
-		let res: Array<string> = []
-		// TODO reload extension
+		let res: Array < string > = []
 		if (changedFile[0] === this.manifestPath) {
 			res.push(CONSTANT.DIFF_CODE[1])
 		}
@@ -141,23 +182,5 @@ export = class ReloadPlugin extends AbstractPlugin{
 			res.push(CONSTANT.DIFF_CODE[5])
 		}
 		return res
-	}
-	apply(complier: Compiler){
-		complier.hooks.watchRun.tap(pluginTapName, complier => {
-			// @ts-ignore: Unreachable code error // fix @types/webpack context undeclare error
-			this.checkPath(complier.context)
-			this.getManifest()
-		})
-		complier.hooks.compilation.tap(pluginTapName, compilation => {
-			compilation.hooks.afterOptimizeChunkAssets.tap(pluginTapName, chunks => {
-				this.injectCode(compilation, chunks)
-			})
-		})
-		complier.hooks.emit.tap(pluginTapName, compilation => {
-			this.generateMainifest(compilation)
-		})
-		complier.hooks.afterEmit.tap(pluginTapName, compilation => {
-			this.noticeClient(compilation)
-		})
 	}
 }
