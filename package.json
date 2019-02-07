@@ -1,8 +1,9 @@
 {
   "name": "crx-reload-webpack-plugin",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "A webpack plugin for hot-reload chrome extension in develop",
-  "main": "index.js",
+  "main": "dist/crxReloadPlugin.js",
+  "types": "typings/index.d.ts",
   "scripts": {
     "start": "cross-env NODE_ENV=development node script/dev-runner",
     "build": "cross-env NODE_ENV=production webpack --progress --config ./config/webpack.prod.js",
