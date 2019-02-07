@@ -26,16 +26,19 @@ export = class ReloadPlugin extends AbstractPlugin {
 	private port: number
 	private paths: ListenPaths
 	private server: Server
+	private autoRetry: boolean
 	constructor({
 		manifest,
 		port,
 		paths,
-		logLevel
+		logLevel,
+		autoRetry
 	}: Options) {
 		super()
 		this.manifestPath = manifest
 		this.paths = paths || {}
 		this.port = port || 9999
+		this.autoRetry = autoRetry || false
 		this.server = new Server()
 		this.server.launch()
 		logger.setLevel(logLevel || 'error')
@@ -104,7 +107,10 @@ export = class ReloadPlugin extends AbstractPlugin {
 					switch (true) {
 						case pathsInPaths(filePath, this.paths.background): // background js file
 							if (!isInjected.background) {
-								temp = template(templateCode.background)({})
+								temp = template(templateCode.background)({
+									port: this.port,
+									autoRetry: this.autoRetry
+								})
 								isInjected.background = true
 							}
 							break;
