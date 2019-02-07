@@ -1,16 +1,24 @@
 {
   "name": "crx-reload-webpack-plugin",
-  "version": "0.0.0",
-  "description": "a webpack plugin for hot-reload chrome extension in dev",
+  "version": "0.0.1",
+  "description": "A webpack plugin for hot-reload chrome extension in develop",
   "main": "index.js",
   "scripts": {
-    "start": "node script/dev-runner"
+    "start": "cross-env NODE_ENV=development node script/dev-runner",
+    "build": "cross-env NODE_ENV=production webpack --progress --config ./config/webpack.prod.js",
+    "client": "cross-env NODE_ENV=development webpack --progess --config ./config/webpack.extension.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LarenDorr/crx-reload-webpack-plugin.git"
   },
-  "keywords": [],
+  "keywords": [
+    "webpack",
+    "plugin",
+    "chrome",
+    "extension",
+    "hot-reload"
+  ],
   "author": "LarenDorr",
   "license": "MIT",
   "bugs": {
@@ -24,12 +32,15 @@
     "@types/webpack": "^4.4.24",
     "@types/webpack-sources": "^0.1.5",
     "@types/ws": "^6.0.1",
+    "clean-webpack-plugin": "^1.0.1",
     "copy-webpack-plugin": "^4.6.0",
+    "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",
     "raw-loader": "^1.0.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
     "webpack": "^4.29.0",
+    "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1",
     "webpack-merge": "^4.2.1"
   },
