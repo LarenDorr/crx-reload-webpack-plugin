@@ -9,6 +9,7 @@ function resolve(dir) {
 
 module.exports = {
 	context: resolve('template'),
+  mode: 'development',
 	entry: {
     background: './background/background',
     content: './content/content',
@@ -27,6 +28,7 @@ module.exports = {
 		]
 	},
 	mode: 'development',
+  watch: true,
 	plugins: [
     new CrxReloadWebpackPlugin({
       manifest: resolve('template/manifest.js')

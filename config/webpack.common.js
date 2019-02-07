@@ -1,4 +1,6 @@
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const path = require('path')
+const pack = require("../package.json")
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir)
@@ -15,6 +17,7 @@ module.exports = {
 		libraryTarget: 'umd',
 		globalObject: "typeof self !== 'undefined' ? self : this" // fix'window undefined' bug
 	},
+	externals: [...Object.keys(pack.dependencies), 'bufferutil', 'utf-8-validate'],
 	module: {
 		rules: [
 			{
@@ -27,5 +30,12 @@ module.exports = {
 	resolve: {
 		modules: [path.resolve(__dirname, "src"), "node_modules"],
 		extensions: ['.ts','.tsx','.js','.json']
-	}
+	},
+	plugins: [
+		new CleanWebpackPlugin([
+			resolve('dist')
+		], {
+			root: resolve('')
+		})
+	]
 }
