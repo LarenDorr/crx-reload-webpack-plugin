@@ -6,7 +6,7 @@
 ![](https://img.shields.io/badge/language-typescript-294E80.svg?style=for-the-badge)
 ![](https://img.shields.io/github/license/larendorr/crx-reload-webpack-plugin.svg?style=for-the-badge)
 
-A webpack plugin for hot-reload chrome extension in development.
+A webpack plugin for hot-reload chrome extension in develop.
 
 <h2 align="center">Why</h2>
 
@@ -24,8 +24,13 @@ crx-reload-webpack-plugin is a webpack4 plugin for reload extension and website 
   - popup: just reload the popup.html tab.
   - background: just reload background.html tab.
   - options: just reload options.html tab.
+  - custom: you can appoint listen files and injected file.
 
 <h2 align="center">How</h2>
+
+**Install**
+
+`npm i -D crx-reload-webpack-plugin`
 
 **Usage**:
 ```js
@@ -46,19 +51,19 @@ module.exports = {
 }
 ```
 **Options type**:
-- **manifest**: `string`
+- **manifest**: `string` (required)
 
-  (must) This is manifest file absolute path. The js file need export a object like manifest.json.
-- **port**: `number`
+  This is manifest file absolute path. The js file need export a object like manifest.json.
+- **port**: `number` (optional)
 
-  (optional, default is `9999`) This is the server's port in plugin. The server is used for notice chrome reload.
-- **path**: object
+  Default is `9999`. This is the server's port in plugin. The server is used for notice chrome reload.
+- **path**: `object` (optional)
   - **background**: `Array<string>`
   - **options**: `Array<string>`
   - **popup**: `Array<string>`
   - **content**: `Array<string>`
 
-  (optional) This object is a collection of absolute paths. Plugin will listen these paths.
+  This object is a collection of absolute paths. Plugin will listen these paths.
   For example:
   ```js
   paths: {
@@ -68,10 +73,10 @@ module.exports = {
     content: ['work/testExtension/src/options.js']
   }
   ```
-  When `paths.background` inclued files change, the background html tab reload, other field same. 
+  When `paths.options` inclued files change, the options html tab reload, other field same. 
   Its value is a string array, can include file or folder.
 
-  The paths default value is:
+  Is's **default value** is:
   ```js
   const context = webpackConfig.context // such as /work/testExtension/src
   paths: {
@@ -81,3 +86,20 @@ module.exports = {
     content: [path.resolve(context, 'content')] // ../src/content/*
   }
   ```
+
+- **extraPaths** `Array<object>` (optional)
+  - **name**: `string`, is a key and it cann't repeat.
+  - **inject**: `string`, is a path that is a js files , will be injected.
+  - **listens**: `Array<string>`, is a array of path string, when these file changed, reload injected js and its html.
+
+- **logLevel** `string` (optional)
+
+  Default is `error`, it is plugin log level, you can set to `info` to get plugin work detail.
+
+- **autoRetry** `bollean` (optional)
+
+  Default is `false`. When server (in plugin) was stop, this decide client (Chrome) whether auto reconnect. You can manually reload background.js tab.
+
+**PS:**
+
+I recommand you open `chrome-extension://xxxxxxxxx/_generated_background_page.html` page to develop `background.js`.Otherwise, reload background will failure, because in devtool page(default) cann't get tab's id to reload.
