@@ -24,17 +24,9 @@ export function pathInPath(path1: string, path2: string) {
 	}
 	}
 
-export function pathInPaths(path1: string , path2: string | Array<string>): boolean {
-	if (typeof path2 === 'string') {
-		return pathInPaths(path1, path2)
-	} else if (typeof path2 === 'object') {
-		return path2.every( path => pathInPath(path1, path))
-	}
+export function pathInPaths(path1: string , path2: Array<string>): boolean {
+	return path2.some( path => pathInPath(path1, path))
 }
-export function pathsInPaths(path1: string | Array<string>, path2: string | Array<string>) {
-	if (typeof path1 === 'string') {
-		return pathInPaths(path1, path2)
-	} else if (typeof path1 === 'object') {
-		return path1.some( path => pathInPaths(path, path2))
-	}
+export function pathsInPaths(path1: Array<string>, path2: Array<string>) {
+	return path1.some( path => pathInPaths(path, path2))
 }

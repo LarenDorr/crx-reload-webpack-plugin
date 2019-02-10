@@ -15,6 +15,7 @@ import Server from './server'
 import requireFromPath from './requireFromPath'
 import * as templateCode from './template'
 import {
+	pathInPaths,
 	pathsInPaths
 } from './utils/pathComp'
 import CONSTANT from './constant'
@@ -105,7 +106,7 @@ export = class ReloadPlugin extends AbstractPlugin {
 				if (path.extname(file) === '.js') {
 					let temp: string // need inject code string
 					switch (true) {
-						case pathsInPaths(filePath, this.paths.background): // background js file
+						case pathInPaths(filePath, this.paths.background): // background js file
 							if (!isInjected.background) {
 								temp = template(templateCode.background)({
 									port: this.port,
@@ -114,13 +115,13 @@ export = class ReloadPlugin extends AbstractPlugin {
 								isInjected.background = true
 							}
 							break;
-						case pathsInPaths(filePath, this.paths.options): // options js file
+						case pathInPaths(filePath, this.paths.options): // options js file
 							if (!isInjected.options) {
 								temp = template(templateCode.options)({})
 								isInjected.options = true
 							}
 							break;
-						case pathsInPaths(filePath, this.paths.popup): // background js file
+						case pathInPaths(filePath, this.paths.popup): // background js file
 							if (!isInjected.popup) {
 								temp = template(templateCode.popup)({})
 								isInjected.popup = true
