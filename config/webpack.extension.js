@@ -36,7 +36,7 @@ module.exports = {
         {
           name: 'main',
           inject: resolve('template/main/main.js'),
-          listen: [resolve('template/main')]
+          listens: [resolve('template/main')]
         }
       ],
       logLevel: 'info'

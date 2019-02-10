@@ -1,14 +1,14 @@
 {
 	"compilerOptions":{
 		"module": "commonjs",
-		// "removeComments": true,
+		"baseUrl": "src",
 		"moduleResolution": "node",
 		"target": "es6",
 		"allowJs": true ,
 		"typeRoots": [
       "typings/index.d.ts"
     ],
-		"types": ["node", "chrome", "webpack", "ws", "lodash"],
+		"types": ["node", "chrome", "webpack", "ws", "lodash", "jest"],
 		"lib": ["es2017", "dom"]
 	},
 	

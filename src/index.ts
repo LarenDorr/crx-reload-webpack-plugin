@@ -211,7 +211,7 @@ export = class ReloadPlugin extends AbstractPlugin {
 			res.push(CONSTANT.DIFF_CODE[5])
 		}
 		this.extraPaths.forEach(path => {
-			if (pathsInPaths(changedFile, path.listen)) {
+			if (pathsInPaths(changedFile, path.listens)) {
 				res.push(path.name)
 			}
 		})
