@@ -1,8 +1,9 @@
 import * as path from 'path'
 
 export function pathInPath(path1: string, path2: string) {
-		// compare path2(dir or file) include or equal pat1(file)
-	if (path1 === path2) { // path2 is file
+	// compare path2(dir or file) include or equal pat1(file)
+	// path2 is file
+	if (path1 === path2) {
 		return true
 	}
 	// path2 is dir
@@ -22,11 +23,11 @@ export function pathInPath(path1: string, path2: string) {
 		}
 		return res
 	}
-	}
-
-export function pathInPaths(path1: string , path2: Array<string>): boolean {
-	return path2.some( path => pathInPath(path1, path))
 }
-export function pathsInPaths(path1: Array<string>, path2: Array<string>) {
-	return path1.some( path => pathInPaths(path, path2))
+
+export function pathInPaths(path1: string, path2: Array < string > ): boolean {
+	return path2.some(path => pathInPath(path1, path))
+}
+export function pathsInPaths(path1: Array < string > , path2: Array < string > ) {
+	return path1.some(path => pathInPaths(path, path2))
 }

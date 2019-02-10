@@ -32,10 +32,5 @@ module.exports = {
 		extensions: ['.ts','.tsx','.js','.json']
 	},
 	plugins: [
-		new CleanWebpackPlugin([
-			resolve('dist')
-		], {
-			root: resolve('')
-		})
 	]
 }

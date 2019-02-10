@@ -16,7 +16,8 @@ import requireFromPath from './requireFromPath'
 import * as templateCode from './template'
 import {
 	pathInPaths,
-	pathsInPaths
+	pathsInPaths,
+	pathInPath
 } from './utils/pathComp'
 import CONSTANT from './constant'
 // TODO TEST
@@ -26,18 +27,21 @@ export = class ReloadPlugin extends AbstractPlugin {
 	private manifestPath: string
 	private port: number
 	private paths: ListenPaths
-	private server: Server
+	private extraPaths: Array < extraPath >
+		private server: Server
 	private autoRetry: boolean
 	constructor({
 		manifest,
 		port,
 		paths,
+		extraPaths,
 		logLevel,
 		autoRetry
 	}: Options) {
 		super()
 		this.manifestPath = manifest
 		this.paths = paths || {}
+		this.extraPaths = extraPaths || []
 		this.port = port || 9999
 		this.autoRetry = autoRetry || false
 		this.server = new Server()
@@ -90,6 +94,9 @@ export = class ReloadPlugin extends AbstractPlugin {
 				logger.info(`${path}: ${this.paths[path]}`)
 			}
 		}
+		this.extraPaths.forEach(extraPath => {
+			logger.info(`${extraPath.name}: ${extraPath.inject}`)
+		})
 	}
 	injectCode(compilation: compilation.Compilation, chunks: compilation.Chunk[]) {
 		let complier = compilation.compiler
@@ -97,6 +104,11 @@ export = class ReloadPlugin extends AbstractPlugin {
 			background: false,
 			options: false,
 			popup: false
+		}
+		if (this.extraPaths.length) {
+			this.extraPaths.forEach( extraPath => {
+				isInjected[extraPath.name] = false
+			})
 		}
 		chunks.forEach(chunk => {
 			let files = chunk.files
@@ -130,6 +142,16 @@ export = class ReloadPlugin extends AbstractPlugin {
 						default:
 							break;
 					}
+					this.extraPaths.forEach(path => {
+						if (!isInjected[path.name]) {
+							if (pathInPath(filePath, path.inject)) {
+								temp = template(templateCode.custom)({
+									name: path.name
+								})
+								isInjected[path.name] = true
+							}
+						}
+					})
 					if (temp) {
 						compilation.assets[file] = new ConcatSource(temp, compilation.assets[file])
 						logger.info(`inject ${chunk.name} chunk in ${file} file.`)
@@ -188,6 +210,11 @@ export = class ReloadPlugin extends AbstractPlugin {
 		if (inOptionsPaths) {
 			res.push(CONSTANT.DIFF_CODE[5])
 		}
+		this.extraPaths.forEach(path => {
+			if (pathsInPaths(changedFile, path.listen)) {
+				res.push(path.name)
+			}
+		})
 		return res
 	}
 }

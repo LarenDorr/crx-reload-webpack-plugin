@@ -6,7 +6,6 @@ const CrxReloadWebpackPlugin = require('../dist/crxReloadPlugin')
 function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
-
 module.exports = {
 	context: resolve('template'),
   mode: 'development',
@@ -14,7 +13,8 @@ module.exports = {
     background: './background/background',
     content: './content/content',
     options: './options/options',
-    popup: './popup/popup'
+    popup: './popup/popup',
+    main: './main/main.js'
   },
 	output: {
     path: resolve('dist'),
@@ -31,7 +31,15 @@ module.exports = {
   watch: true,
 	plugins: [
     new CrxReloadWebpackPlugin({
-      manifest: resolve('template/manifest.js')
+      manifest: resolve('template/manifest.js'),
+      extraPaths:[
+        {
+          name: 'main',
+          inject: resolve('template/main/main.js'),
+          listen: [resolve('template/main')]
+        }
+      ],
+      logLevel: 'info'
     }),
 		new HtmlWebpackPlugin({
       filename: resolve('dist/popup/popup.html'),
@@ -43,6 +51,12 @@ module.exports = {
       filename: resolve('dist/options/options.html'),
       chunks: ['options'],
       template: 'options/options.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      filename: resolve('dist/main/main.html'),
+      chunks: ['main'],
+      template: 'main/main.html',
       inject: false
     }),
 		new CopyWebpackPlugin([
