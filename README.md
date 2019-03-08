@@ -100,6 +100,10 @@ module.exports = {
 
   Default is `false`. When server (in plugin) was stop, this decide client (Chrome) whether auto reconnect. You can manually reload background.js tab.
 
+**Example**
+
+You can reference `template/` and `config/webpack.extension.js`. This is a basic extension develop structure.
+
 **PS:**
 
 I recommand you open `chrome-extension://xxxxxxxxx/_generated_background_page.html` page to develop `background.js`.Otherwise, reload background will failure, because in devtool page(default) cann't get tab's id to reload.
