@@ -1,6 +1,6 @@
 {
   "name": "crx-reload-webpack-plugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A webpack plugin for hot-reload chrome extension in develop",
   "main": "dist/crxReloadPlugin.js",
   "types": "typings/index.d.ts",
